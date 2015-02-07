@@ -20,12 +20,15 @@ var savePassByShel = function(today){
 								}
 
 								for(var busIdx in item.bus){
-
-									for(var shelIdx in item.bus[busIdx].shelterArray){
-										if(item.bus[busIdx].shelterArray[shelIdx]){
-											passData.shelterArray[Number(item.bus[busIdx].shelterArray[shelIdx].shelterNo)-1].totalPass += item.bus[busIdx].shelterArray[shelIdx].passenger;
-											passData.shelterArray[Number(item.bus[busIdx].shelterArray[shelIdx].shelterNo)-1].busAccount ++;
+									// reduce null shelter error
+									var tempPass = 0;
+									
+									for(var i = 1; i < item.bus[busIdx].shelterArray.length ; i++){
+										if(item.bus[busIdx].shelterArray[i]){
+											tempPass = item.bus[busIdx].shelterArray[i].passenger;
 										}
+										passData.shelterArray[Number(item.bus[busIdx].shelterArray[i].shelterNo)-1].totalPass += tempPass;
+										passData.shelterArray[Number(item.bus[busIdx].shelterArray[i].shelterNo)-1].busAccount ++;
 									}
 								}
 

@@ -69,6 +69,16 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 				var shelterTimeValue;
 				var curTimeValue;
 
+				//delete error bus data
+				for(var busIdx in item.bus){
+					busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
+					curTimeValue = Number(time.split(':',2)[0])*60 + Number(time.split(':',2)[1]);
+
+					if(((busTimeValue + 80) < curTimeValue && item.bus[busIdx].shelterArray.length < 28) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
+						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
+					}
+				}
+
 				// update bus
 				for(var shelterIdx in newShelterArr){
 					var shelNum = Number(newShelterArr[shelterIdx].shelterNo);
@@ -91,16 +101,6 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					}
 
 					if(isNewBus) item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
-				}
-				
-				//delete error bus data
-				for(var busIdx in item.bus){
-					busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
-					curTimeValue = Number(time.split(':',2)[0])*60 + Number(time.split(':',2)[1]);
-
-					if((busTimeValue + 80 < curTimeValue && item.bus[busIdx].shelterArray.length < 28) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
-						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
-					}
 				}
 
 				// console.log('===========================');
