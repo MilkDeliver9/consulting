@@ -27,8 +27,9 @@ var savePassByShel = function(today){
 										if(item.bus[busIdx].shelterArray[i]){
 											tempPass = item.bus[busIdx].shelterArray[i].passenger;
 										}
-										passData.shelterArray[Number(item.bus[busIdx].shelterArray[i].shelterNo)-1].totalPass += tempPass;
-										passData.shelterArray[Number(item.bus[busIdx].shelterArray[i].shelterNo)-1].busAccount ++;
+
+										passData.shelterArray[i-1].totalPass += tempPass;
+										passData.shelterArray[i-1].busAccount ++;
 									}
 								}
 

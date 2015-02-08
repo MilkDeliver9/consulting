@@ -9,10 +9,10 @@ var getStaticData = function(res){
 		var passByTimeCol = consultingDB.collection("passByTimeData");
 		var passByShelCol = consultingDB.collection("passByShelData");
 
-		passByTimeCol.findOne({date:'2015/2/6'}, function(err, item){
+		passByTimeCol.findOne({date:'2015/2/7'}, function(err, item){
 			data.push({'byTime' : item.timeArray});
 
-			passByShelCol.findOne({date:'2015/2/6'}, function(err, item){
+			passByShelCol.findOne({date:'2015/2/7'}, function(err, item){
 				data.push({'byShel' : item.shelterArray});
 				res.send(data);
 			});
