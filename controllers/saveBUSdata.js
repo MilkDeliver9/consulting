@@ -77,6 +77,7 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					if(((busTimeValue + 80) < curTimeValue && item.bus[busIdx].shelterArray.length < 28) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
 						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
 					}
+
 				}
 
 				// update bus
@@ -89,10 +90,14 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 						busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
 						shelterTimeValue = Number(newShelterArr[shelterIdx].timeStamp.split(':',2)[0])*60 + Number(newShelterArr[shelterIdx].timeStamp.split(':',2)[1]);
 
-						if ((newShelterArr[shelterIdx].carNo == item.bus[busIdx].carNo) && (shelNum >= (item.bus[busIdx].shelterArray.length-1)) && (busTimeValue + 80) > shelterTimeValue) {
+						// console.log(item.bus[busIdx].carNo + ' // ' + item.bus[busIdx].startTime + ' // ' + item.bus[busIdx].shelterArray.length);
+						// console.log(busTimeValue+80);
+						// console.log(shelterTimeValue);
+
+						if ((newShelterArr[shelterIdx].carNo == item.bus[busIdx].carNo) && (busTimeValue + 80) > shelterTimeValue) {
 							// if this bus is already exist
 							// don't reset 0 when bus arrived at shelNo 13
-							if(!(newShelterArr[shelterIdx].shelterNo =="13" && newShelterArr[shelterIdx].passenger == 0)){
+							if((shelNum >= (item.bus[busIdx].shelterArray.length-1)) && !(newShelterArr[shelterIdx].shelterNo =="13" && newShelterArr[shelterIdx].passenger == 0)){
 								item.bus[busIdx].shelterArray[shelNum] = newShelterArr[shelterIdx];
 							}
 							
