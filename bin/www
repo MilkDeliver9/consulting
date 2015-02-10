@@ -46,7 +46,7 @@ io.on('connection', function (socket) {
         weatherCol = consultingDB.collection("weatherData");
 
         weatherCol.findOne(function(err, item){
-            socket.emit('weatherData', item[item.length-1]);
+            socket.emit('weatherData', item.weather[item.weather.length-1]);
         });
 
     });
@@ -59,9 +59,9 @@ io.on('connection', function (socket) {
 
     weatherEmitter = setInterval(function(){
         weatherCol.findOne(function(err, item){
-            socket.emit('weatherData', item[item.length-1]);
+            socket.emit('weatherData', item.weather[item.weather.length-1]);
         });
-    }, 900000);
+    }, 300000);
 
 
     socket.on('disconnect', function(){

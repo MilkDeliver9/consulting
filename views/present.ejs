@@ -18,6 +18,7 @@
 
 			#left_pannel,#right_pannel{min-height:600px;vertical-align:middle;}
 			#rightpad{ min-height:20px;};
+			#abc{blur:5px;};
 
 	</style>
   </head>
@@ -29,7 +30,7 @@
 		<!-- past state true : time graph -->
 		<div class = "row"id="GraphByShelter" ng-show="past_view"></div>
 	   <!--  past state true : shelter graph -->
-	   <div class = "row" id = "predict_table" ng-show="predict_view">
+	   <div class = "row" id = "predict_table" ng-show="predict_view" ng-if="tableready">
 	   		<table class="table">
 				<thead>
 					<th>학교</th>
@@ -39,12 +40,12 @@
 					<th>학교</th>
 				</thead>
 				<tbody>
-					<tr ng-repeat = "predict in predicttime">
-					<td>{{predict}}</td>
-					<td>{{predict}}</td>
-					<td>{{predict}}</td>
-					<td>{{predict}}</td>
-					<td>{{predict}}</td>
+					<tr ng-repeat = "hour in predicttime">
+						<td>{{hour.times.a|timeform}}</td>
+						<td>{{hour.times.b|timeform}}</td>
+						<td>{{hour.times.c|timeform}}</td>
+						<td>{{hour.times.d|timeform}}</td>
+						<td>{{hour.times.e|timeform}}</td>
 					</tr>
 				</tbody>
 	   		</table>
@@ -53,7 +54,7 @@
 	 	 <div class="row">
 			<div class="col col-6" id="left_pannel">
 			<div id="gmap_image" ng-if="mapflag">
-							<img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{centerXarea}},{{centerYarea}}&zoom=13&size=370x540&maptype=roadmap&markers={{markers}}&path={{buspath_blue1}}&path={{buspath_blue2}}&path={{buspath}}&markers={{yookbus}}&markers={{hwanbus}}&sensor=false&key=AIzaSyAM_1iWs2FUHPkOvCYKq88Uvyw4ox0CfZE">
+							<img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{centerXarea}},{{centerYarea}}&zoom=13&size=370x540&maptype=roadmap&markers={{markers}}&path={{buspath_blue1}}&path={{buspath_blue2}}&path={{buspath}}&markers={{yookbus}}&markers={{hwanbus}}&sensor=false&key=AIzaSyAM_1iWs2FUHPkOvCYKq88Uvyw4ox0CfZE" id="abc">
 						</div>
 			<!-- present state true : google static maps -->
 			</div>

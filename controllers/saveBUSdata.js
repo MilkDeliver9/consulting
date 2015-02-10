@@ -4,7 +4,7 @@ var datas = require('../models/busStatus');
 var getCustomDate = require('./getCustomDate');
 var xml2js = require('xml2js');
 var parser = new xml2js.Parser();
-	
+
 var saveBusData = function(){
 	var request = http.request({host:'118.41.84.132', path:'/bis/mobilegw/appAllBusPosition.php'}, function(res){
 		var data = '';
@@ -57,7 +57,7 @@ var saveBusData = function(){
 	});
 
 	request.on('socket', function(socket){
-		socket.setTimeout(1000);
+		socket.setTimeout(3000);
 		socket.on('timeout', function(){
 			request.abort();
 		});
@@ -81,7 +81,7 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
 					curTimeValue = Number(time.split(':',2)[0])*60 + Number(time.split(':',2)[1]);
 
-					if(((busTimeValue + 90) < curTimeValue && item.bus[busIdx].shelterArray.length < 28) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
+					if(((busTimeValue + 90) < curTimeValue && item.bus[busIdx].shelterArray.length < 3) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
 						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
 					}
 				}
@@ -90,17 +90,13 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 				for(var shelterIdx in newShelterArr){
 					var shelNum = Number(newShelterArr[shelterIdx].shelterNo);
 					var isNewBus = true;
-
+					var index = -1;
 
 					for(var busIdx in item.bus){
-						// if there are some errors : shelter length error // dup check throu time
+						/*
 						busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
 						shelterTimeValue = Number(newShelterArr[shelterIdx].timeStamp.split(':',2)[0])*60 + Number(newShelterArr[shelterIdx].timeStamp.split(':',2)[1]);
-
-						// console.log(item.bus[busIdx].carNo + ' // ' + item.bus[busIdx].startTime + ' // ' + item.bus[busIdx].shelterArray.length);
-						// console.log(busTimeValue+80);
-						// console.log(shelterTimeValue);
-
+						
 						if ((newShelterArr[shelterIdx].carNo == item.bus[busIdx].carNo) && (busTimeValue + 90) > shelterTimeValue) {
 							isNewBus = false;
 							// if this bus is already exist
@@ -108,30 +104,33 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 							if((shelNum >= (item.bus[busIdx].shelterArray.length-1)) && !(newShelterArr[shelterIdx].shelterNo =="13" && newShelterArr[shelterIdx].passenger == 0)){
 								item.bus[busIdx].shelterArray[shelNum] = newShelterArr[shelterIdx];
 								break;
-							} else if(shelNum < (item.bus[busIdx].shelterArray.length-1)){
-								isNewBus = true;
-								break;
 							}
 						}
+						*/
+
+						if(newShelterArr[shelterIdx].carNo == item.bus[busIdx].carNo){
+							index = item.bus.indexOf(item.bus[busIdx]);
+						}
+
 					}
 
-					if(isNewBus) item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
+					if(index){
+						if(shelNum >= (item.bus[index].shelterArray.length-1)){
+							item.bus[index].shelterArray[shelNum] = newShelterArr[shelterIdx];
+						} else {
+							item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
+						}
+
+					} else {
+						item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
+					}
+
+					/*
+					if(isNewBus){
+						item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
+					} 
+					*/
 				}
-
-				// console.log('===========================');
-				// for(var idx in item.bus){
-				// 	console.log('bus Start : ' + item.bus[idx].startTime);
-				// 	console.log('bus carNo : ' + item.bus[idx].carNo);
-
-				// 	for(var bidx in item.bus[idx].shelterArray){
-				// 		if(item.bus[idx].shelterArray[bidx]){
-				// 			console.log('shelter Num : ' + item.bus[idx].shelterArray[bidx].shelterNo + ' // ' + item.bus[idx].shelterArray[bidx].timeStamp);
-				// 		}
-						
-				// 	}
-
-				// }
-				// console.log('===========================');
 
 				accumCol.save(item, {w:1}, function(err, savedItem){});
 

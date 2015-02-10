@@ -1,7 +1,63 @@
 var app = angular.module('Present',[]);
 
+app.filter('timeform',function(){
+    return function(input){
+        if(input=='---')
+            return input;
+        var hour=Number(input[0]+input[1]);
+        var min =Number(input[2]+input[3]);
+
+        while(true){
+        if(min>59){
+            hour+=1;
+            min-=60;
+        }
+        else
+            break;
+        }
+        if(hour<10){
+            hour='0'+hour;
+        }
+        if(min<10){
+            min='0'+min;
+        }
+        if(hour>23){
+            hour=hour-24;} 
+        return hour+':'+min;
+
+    }
+
+});
 
 app.controller('Present_control',['$scope','$window','$http',function($scope,$window,$http){
+
+
+$scope.caltime=function(string,num){
+
+    if(string.length<4)
+        string='0'+string;
+
+    var hour=Number(string[0]+string[1]);
+    var min =Number(string[2]+string[3]);
+
+    min=min+num;
+
+        if(min>59){
+            hour+=1;
+            min-=60;
+        }
+        if(hour>23){
+            hour=hour-24;} 
+        if(hour<10){
+            hour='0'+hour;
+        }
+        if(min<10){
+            min='0'+min;
+        }
+        return String(hour)+String(min);
+
+};
+
 
 $scope.centerXarea=36.076149;
 $scope.centerYarea=129.39200;
@@ -57,15 +113,63 @@ $scope.pathinfo=
     {"xarea": 36.04615438, "yarea": 129.3713212},   //13
     {"xarea": 36.04083627, "yarea": 129.3668841},   //14
     ];
-
-$scope.predicttime=[
-    "0705","0800","0900","1000","1100","1200","1300","1400","1500","1600","1700",
-    "1800","1900","2000","2100","2140","2340","2420","2450"
-
-
-
-    ];
 //Googlemaps red line path
+$scope.predicttime=[
+    {'dest':0,'_id':1,'times':{'a':"0705"}},
+    {'dest':0,'_id':2,'times':{'a':"0800"}},
+    {'dest':0,'_id':3,'times':{'a':"0900"}},
+    {'dest':0,'_id':4,'times':{'a':"1000"}},
+    {'dest':0,'_id':5,'times':{'a':"1100"}},
+    {'dest':0,'_id':6,'times':{'a':"1200"}},
+    {'dest':0,'_id':7,'times':{'a':"1300"}},
+    {'dest':0,'_id':8,'times':{'a':"1400"}},
+    {'dest':0,'_id':9,'times':{'a':"1500"}},
+    {'dest':0,'_id':10,'times':{'a':"1600"}},
+    {'dest':0,'_id':11,'times':{'a':"1700"}},
+    {'dest':0,'_id':12,'times':{'a':"1800"}},
+    {'dest':0,'_id':13,'times':{'a':"1900"}},
+    {'dest':0,'_id':14,'times':{'a':"2000"}},
+    {'dest':0,'_id':15,'times':{'a':"2100"}},
+    {'dest':0,'_id':15,'times':{'a':"2140"}},
+    {'dest':0,'_id':17,'times':{'a':"2300"}},
+    {'dest':0,'_id':17,'times':{'a':"2340"}},
+    {'dest':0,'_id':18,'times':{'a':"2420"}},
+    {'dest':0,'_id':18,'times':{'a':"2450"}}
+];
+// Static bus
+$scope.caltimetable=function(){
+    for(var time in $scope.predicttime)
+    {
+        if($scope.predicttime[time].dest<1){
+        
+            $scope.predicttime[time].times.a=$scope.caltime($scope.predicttime[time].times.a,0);
+            $scope.predicttime[time].times.b=$scope.caltime($scope.predicttime[time].times.a,20);
+            $scope.predicttime[time].times.c=$scope.caltime($scope.predicttime[time].times.a,35);
+            $scope.predicttime[time].times.d=$scope.caltime($scope.predicttime[time].times.a,50);
+            $scope.predicttime[time].times.e=$scope.caltime($scope.predicttime[time].times.a,70);
+                 
+        }
+
+        else{
+            //console.log($scope.predicttime[time].times);
+            
+            //console.log($scope.predicttime[time].times[idx].a.length);
+            $scope.predicttime[time].times.a=$scope.caltime($scope.predicttime[time].times.a,0);
+            $scope.predicttime[time].times.b=$scope.caltime($scope.predicttime[time].times.a,20);
+            $scope.predicttime[time].times.c='---';
+            $scope.predicttime[time].times.d=$scope.caltime($scope.predicttime[time].times.a,25);
+            $scope.predicttime[time].times.e=$scope.caltime($scope.predicttime[time].times.a,45);
+            }
+
+
+
+
+    }
+    
+$scope.tableready=true;
+
+};
+
 
 $scope.markers="icon:"+$scope.rooturl+"public/images/bus_stop.png";
 $scope.yookbus="icon:"+$scope.rooturl+"public/images/bus_icon1.png";
@@ -98,6 +202,7 @@ $scope.buspath_blue2 = $scope.buspath_blue2+"%7C" + "36.04083627" +","+ "129.366
 $scope.busdata=[];   //bus data
 $scope.weather=[];   //weather data 
 
+
 $http.get("data/bustable").
   success(function(data,status,headers,config){
      //console.log(data);
@@ -105,9 +210,7 @@ $http.get("data/bustable").
         $scope.timetable=data;
      }
      else{
-
         $scope.timeflag=true;
-        
      }
   }).
   error(function(data,status,headers,config){
@@ -119,16 +222,21 @@ $scope.chartd_time=[{},{},{},{},{},{},{}];
 $scope.chartd_shelter=[];
 $scope.chart_time=[];
 
+$scope.timerowdata=[];
+
 $scope.post_time=function(){
     param={'from':"2015/02/02",'to':"2015/03/10"};
     $http.post('data/staticByTime',param).
           success(function(data,status,headers,config){
                 for(var idx in data)
                 {
+
+                    
                     switch(data[idx]._id)
                     {
                         case 0:
                         $scope.chartd_time[6]=data[idx].value.timeArray;
+                        $scope.timerowdata[6]=data[idx].value;
                         break;
                         case 1:
                         case 2:
@@ -137,17 +245,19 @@ $scope.post_time=function(){
                         case 5:
                         case 6:
                         $scope.chartd_time[data[idx]._id-1]=data[idx].value.timeArray;
+                        $scope.timerowdata[data[idx]._id-1]=data[idx].value;
                     };
                 
                 }
-
                 for(var idx in $scope.chartd_time)
                 {
                     $scope.chart_time=$scope.chart_time.concat($scope.chartd_time[idx]);
                 }
-                
-
+                if(!$scope.chartflag)
                 $scope.drawchart();
+
+                $scope.averPass();
+
           })
           .error(function(data,status,headers,config){
             console.log(status);
@@ -195,12 +305,18 @@ $scope.present=function(){
     $scope.predict_view=false;
 };
 $scope.past=function(){
+    var pass=0;
     param={'from':"2015/02/02",'to':"2015/03/10"};
 
         $http.post('data/staticByShel',param).
           success(function(data,status,headers,config){
             // console.log(data);
             $scope.chartd_shelter=data;
+            for(var idx in $scope.chartd_shelter){
+                pass+=$scope.chartd_shelter[idx].average;
+            }
+            console.log(pass);
+
             $scope.post_time();
 
           })
@@ -208,18 +324,16 @@ $scope.past=function(){
             console.log(status);
           });
         //Shel data
-
-        
         
     $scope.present_view = false;
     $scope.past_view=true;
     $scope.predict_view=false;
-
 };
 $scope.predict=function(){
     $scope.present_view = false;
     $scope.past_view=false;
     $scope.predict_view=true;
+    $scope.tableAlgo();
 };
 // VIEW SELECTOR - footer button
 $scope.drawchart = function(){
@@ -452,9 +566,93 @@ jui.ready([ "chart.builder" ],function(chart){
                 });
 //chart - Passenger with Shelter
             }),
-
 $scope.chartflag=true;
 };
+$scope.measuredata=[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}];
+
+$scope.averPass=function(){
+    var passnum=0;
+
+    for(var idx in $scope.timerowdata)
+    {
+        if($scope.timerowdata[idx].day>0 && $scope.timerowdata[idx].day<6)
+        {  
+
+            for(var time in $scope.timerowdata[idx].timeArray)
+            {
+            if(idx<1)
+            $scope.measuredata[time].passVal=$scope.timerowdata[idx].timeArray[time].totalPass;
+            
+            $scope.measuredata[time].passVal+=$scope.timerowdata[idx].timeArray[time].totalPass;
+            }
+
+        
+        }
+    }
+    for(var idx in $scope.measuredata)
+    {
+        $scope.measuredata[idx].passVal/=5;
+        passnum+=$scope.measuredata[idx].passVal;
+    }
+    console.log(passnum);
+
+};
+
+  $scope.tableAlgo=function(){
+    console.log($scope.measuredata);
+        for(var idx in $scope.measuredata)
+        {
+           if($scope.measuredata[idx].passVal!=0)
+            $scope.measuredata[idx].busNeeds=Math.floor($scope.measuredata[idx].passVal/60+1);
+           else
+            $scope.measuredata[idx].busNeeds=0;
+          $scope.measuredata[idx].realBus=0;
+        }
+        //Aver pass calculate
+
+        for(var idx in $scope.predicttime)
+        {
+             $scope.measuredata[$scope.predicttime[idx]._id].realBus++;
+        }
+        //Count real bus number
+
+        for(var idx in $scope.measuredata)
+        {   
+            var busnum=60/($scope.measuredata[idx].busNeeds-$scope.measuredata[idx].realBus+1);
+             while(true){
+                var count=0;
+                if($scope.measuredata[idx].busNeeds>$scope.measuredata[idx].realBus)
+                {
+                    var abc=String(Number(idx)+6)+String(busnum);
+                    busnum+=busnum;
+                    var obj={'dest':1,'_id':Number(idx),'times':{'a':abc}};
+                     for(var index in $scope.predicttime){
+                        if($scope.predicttime[index]._id>idx)
+                        {   
+                            
+                            $scope.measuredata[$scope.predicttime[index]._id].busNeeds=(Number($scope.measuredata[$scope.predicttime[index]._id+1].busNeeds)-1);
+                         
+                            $scope.predicttime.splice(count,0,obj);
+
+                            break;
+                        }
+                        else
+                            count++;
+                     }
+                    //console.log($scope.predicttime);
+
+                  $scope.measuredata[idx].realBus++;
+                  //console.log(obj);
+                }
+                 else
+                     break;
+             }
+        }
+        //console.log($scope.measuredata);
+        $scope.caltimetable();
+        //Add new bus to needs
+
+    }
+
 
 }]);
-

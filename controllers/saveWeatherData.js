@@ -53,6 +53,13 @@ var saveWeatherData = function(){
 		console.log(err.message);
 	});
 
+	request.on('socket', function(socket){
+		socket.setTimeout(3000);
+		socket.on('timeout', function(){
+			request.abort();
+		});
+	});
+
 	request.end();
 }
 
