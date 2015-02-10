@@ -56,6 +56,13 @@ var saveBusData = function(){
 		console.log(err.message);
 	});
 
+	request.on('socket', function(socket){
+		socket.setTimeout(1000);
+		socket.on('timeout', function(){
+			request.abort();
+		});
+	});
+
 	request.end();
 }
 
@@ -77,7 +84,6 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					if(((busTimeValue + 90) < curTimeValue && item.bus[busIdx].shelterArray.length < 28) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
 						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
 					}
-
 				}
 
 				// update bus
@@ -101,8 +107,10 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 							// don't reset 0 when bus arrived at shelNo 13
 							if((shelNum >= (item.bus[busIdx].shelterArray.length-1)) && !(newShelterArr[shelterIdx].shelterNo =="13" && newShelterArr[shelterIdx].passenger == 0)){
 								item.bus[busIdx].shelterArray[shelNum] = newShelterArr[shelterIdx];
+								break;
 							} else if(shelNum < (item.bus[busIdx].shelterArray.length-1)){
 								isNewBus = true;
+								break;
 							}
 						}
 					}

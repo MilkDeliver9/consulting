@@ -57,6 +57,14 @@ $scope.pathinfo=
     {"xarea": 36.04615438, "yarea": 129.3713212},   //13
     {"xarea": 36.04083627, "yarea": 129.3668841},   //14
     ];
+
+$scope.predicttime=[
+    "0705","0800","0900","1000","1100","1200","1300","1400","1500","1600","1700",
+    "1800","1900","2000","2100","2140","2340","2420","2450"
+
+
+
+    ];
 //Googlemaps red line path
 
 $scope.markers="icon:"+$scope.rooturl+"public/images/bus_stop.png";
@@ -92,7 +100,6 @@ $scope.weather=[];   //weather data
 
 $http.get("data/bustable").
   success(function(data,status,headers,config){
-    
      //console.log(data);
      if(data){
         $scope.timetable=data;
@@ -108,8 +115,47 @@ $http.get("data/bustable").
   });
 //get current bus table
 
-$scope.chartd_time=[];
+$scope.chartd_time=[{},{},{},{},{},{},{}];
 $scope.chartd_shelter=[];
+$scope.chart_time=[];
+
+$scope.post_time=function(){
+    param={'from':"2015/02/02",'to':"2015/03/10"};
+    $http.post('data/staticByTime',param).
+          success(function(data,status,headers,config){
+                for(var idx in data)
+                {
+                    switch(data[idx]._id)
+                    {
+                        case 0:
+                        $scope.chartd_time[6]=data[idx].value.timeArray;
+                        break;
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        $scope.chartd_time[data[idx]._id-1]=data[idx].value.timeArray;
+                    };
+                
+                }
+
+                for(var idx in $scope.chartd_time)
+                {
+                    $scope.chart_time=$scope.chart_time.concat($scope.chartd_time[idx]);
+                }
+                
+
+                $scope.drawchart();
+          })
+          .error(function(data,status,headers,config){
+            console.log(status);
+          });
+
+};
+
+
 $window.socket = io.connect('consulting.handong.edu:8080');
 $window.socket.on('bisData',function(data){
     $scope.busdata=[];
@@ -138,7 +184,7 @@ $window.socket.on('bisData',function(data){
 //BUS data listener
 $window.socket.on('weatherData',function(weatherdata){
     $scope.weather=weatherdata;
-     console.log(weatherdata);
+//   console.log(weatherdata);
     $scope.$apply();
 });
 //WEATHER data listener
@@ -149,29 +195,25 @@ $scope.present=function(){
     $scope.predict_view=false;
 };
 $scope.past=function(){
-$http.get('data/staticdata').
-  success(function(data,status,headers,config){
-    
-    $scope.chartd_time=data[0].byTime;
-    $scope.chartd_shelter=data[1].byShel;
+    param={'from':"2015/02/02",'to':"2015/03/10"};
 
-    $scope.chartd_time = $scope.chartd_time.concat(data[0].byTime);
-    $scope.chartd_time = $scope.chartd_time.concat(data[0].byTime);
-    $scope.chartd_time = $scope.chartd_time.concat(data[0].byTime);
-    $scope.chartd_time = $scope.chartd_time.concat(data[0].byTime);
-    $scope.chartd_time = $scope.chartd_time.concat(data[0].byTime);
-    $scope.chartd_time = $scope.chartd_time.concat(data[0].byTime);
+        $http.post('data/staticByShel',param).
+          success(function(data,status,headers,config){
+            // console.log(data);
+            $scope.chartd_shelter=data;
+            $scope.post_time();
 
-    if(!$scope.chartflag)
-        $scope.drawchart();
-  })
-  .error(function(data,status,headers,config){
-    console.log(status);
-  });
+          })
+          .error(function(data,status,headers,config){
+            console.log(status);
+          });
+        //Shel data
+
+        
+        
     $scope.present_view = false;
     $scope.past_view=true;
     $scope.predict_view=false;
-
 
 };
 $scope.predict=function(){
@@ -196,7 +238,7 @@ jui.ready([ "chart.builder" ],function(chart){
                                 "07"," "," ","10"," "," ","13"," "," ","16"," "," ","19"," "," ","22"," "," ","01"," "," "," ",
                                 "07"," "," ","10"," "," ","13"," "," ","16"," "," ","19"," "," ","22"," "," ","01"," "," "," ",
                                 "07"," "," ","10"," "," ","13"," "," ","16"," "," ","19"," "," ","22"," "," ","01"," "," "," ",
-                                "07"," "," ","10"," "," ","13"," "," ","16"," "," ","19"," "," ","22"," "," ","01"," "," "," "
+                                "07"," "," ","10"," "," ","13"," "," ","16"," "," ","19"," "," ","22"," "," ","01"," "," ","04"
                             ],      
                             line : true,
                             full:true
@@ -208,7 +250,7 @@ jui.ready([ "chart.builder" ],function(chart){
                             step : 10
                         },
                         //area : { x : 0, y : 0, width : '100%', height : '100%' },
-                        data : $scope.chartd_time
+                        data : $scope.chart_time
                     },
                     brush : [
                         {
@@ -331,7 +373,7 @@ jui.ready([ "chart.builder" ],function(chart){
                         y :
                         {
                             type : 'range',
-                            domain : [0, 1000],
+                            domain : [0, 10000],
                             step : 10,
                             color:'#e9f819'
                         },
@@ -413,8 +455,6 @@ jui.ready([ "chart.builder" ],function(chart){
 
 $scope.chartflag=true;
 };
-
-$scope.ready=true;
 
 }]);
 

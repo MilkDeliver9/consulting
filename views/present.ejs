@@ -29,6 +29,26 @@
 		<!-- past state true : time graph -->
 		<div class = "row"id="GraphByShelter" ng-show="past_view"></div>
 	   <!--  past state true : shelter graph -->
+	   <div class = "row" id = "predict_table" ng-show="predict_view">
+	   		<table class="table">
+				<thead>
+					<th>학교</th>
+					<th>환호동</th>
+					<th>육거리</th>
+					<th>환호동</th>
+					<th>학교</th>
+				</thead>
+				<tbody>
+					<tr ng-repeat = "predict in predicttime">
+					<td>{{predict}}</td>
+					<td>{{predict}}</td>
+					<td>{{predict}}</td>
+					<td>{{predict}}</td>
+					<td>{{predict}}</td>
+					</tr>
+				</tbody>
+	   		</table>
+	   </div>
 	   <div id = "present_viewer" ng-show="present_view">
 	 	 <div class="row">
 			<div class="col col-6" id="left_pannel">
