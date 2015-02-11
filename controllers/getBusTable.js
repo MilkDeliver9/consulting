@@ -1,5 +1,6 @@
 var getBusTable = function(res){
 	var date = new Date();
+	var hour = date.getHours();
 	var data = new Array();
 	var busTable;
 
@@ -233,8 +234,10 @@ var getBusTable = function(res){
 			}];
 	}
 
+	if(hour == 0) hour = 24;
+
 	for(var idx in busTable){
-		if(busTable[idx].timezone >= date.getHours()-1 && busTable[idx].timezone <= date.getHours()+2)
+		if(busTable[idx].timezone >= hour-1 && busTable[idx].timezone <= hour + 2)
 			data.push(busTable[idx]);
 	}
 	

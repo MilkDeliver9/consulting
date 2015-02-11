@@ -68,6 +68,7 @@ var saveBusData = function(){
 
 var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 	var today = getCustomDate.get(date);
+
 	// check DB
 	consultingDB.collection("accumData", function(err, accumCol){
 		accumCol.findOne({date : today}, function(err, item){
@@ -114,17 +115,15 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 
 					}
 
-					if(index){
+					if(index >= 0){
 						if(shelNum >= (item.bus[index].shelterArray.length-1)){
 							item.bus[index].shelterArray[shelNum] = newShelterArr[shelterIdx];
 						} else {
 							item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
 						}
-
 					} else {
 						item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
 					}
-
 					/*
 					if(isNewBus){
 						item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
