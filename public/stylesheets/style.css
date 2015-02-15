@@ -6,3 +6,8 @@ body {
 a {
   color: #00B7FF;
 }
+
+#predict_table{
+	background-color:  white;
+	opacity: 0.2;
+}

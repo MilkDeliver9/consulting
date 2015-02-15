@@ -1,204 +1,115 @@
-<!DOCTYPE html>
-<html ng-app = "Present">
-  <head>
-	<title> Bus tracer - present </title>
-		
-	<script src="/socket.io/socket.io.js"></script>
-	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-	<link rel="stylesheet" href="../public/stylesheets/jui-develop/jui.min.css">
-	<link rel="stylesheet" href="http://code.angularjs.org/1.3.6/angular-csp.css">
-	<script src="../public/stylesheets/jui-develop/jui.min.js"></script>
-	<script ng-model="socketCon">
-			window.socket;
-		</script>
-	<style>
-			html { width:1100px; height:700px; margin:0 auto;}
-			body { height: 100%; margin: 0; padding: 0 ;}
-			.row,td{text-align:center;}
+<div class="container_12"> 
 
-			#left_pannel,#right_pannel{min-height:600px;vertical-align:middle;}
-			#rightpad{ min-height:20px;};
-			#abc{blur:5px;};
+	<div class="grid_6">
+		<div id="gmap_image" ng-if="mapflag">
+	   	<!--<img src='../public/images/map_white_2.png' width="450" height="500"> -->
 
-	</style>
-  </head>
-  <body class = "jui">
-	<div ng-controller = "Present_control" ng-cloak>
-      <div class="row col col-12" id = "top"></div> 
-      <!-- top banner -->
-	    <div class = "row" id="GraphByTime" ng-show="past_view"></div>
-		<!-- past state true : time graph -->
-		<div class = "row"id="GraphByShelter" ng-show="past_view"></div>
-	   <!--  past state true : shelter graph -->
-	   <div class = "row" id = "predict_table" ng-show="predict_view" ng-if="tableready">
-	   		<table class="table">
-				<thead>
-					<th>학교</th>
-					<th>환호동</th>
-					<th>육거리</th>
-					<th>환호동</th>
-					<th>학교</th>
-				</thead>
-				<tbody>
-					<tr ng-repeat = "hour in predicttime">
-						<td>{{hour.times.a|timeform}}</td>
-						<td>{{hour.times.b|timeform}}</td>
-						<td>{{hour.times.c|timeform}}</td>
-						<td>{{hour.times.d|timeform}}</td>
-						<td>{{hour.times.e|timeform}}</td>
-					</tr>
-				</tbody>
-	   		</table>
-	   </div>
-	   <div id = "present_viewer" ng-show="present_view">
-	 	 <div class="row">
-			<div class="col col-6" id="left_pannel">
-			<div id="gmap_image" ng-if="mapflag">
-							<img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{centerXarea}},{{centerYarea}}&zoom=13&size=370x540&maptype=roadmap&markers={{markers}}&path={{buspath_blue1}}&path={{buspath_blue2}}&path={{buspath}}&markers={{yookbus}}&markers={{hwanbus}}&sensor=false&key=AIzaSyAM_1iWs2FUHPkOvCYKq88Uvyw4ox0CfZE" id="abc">
-						</div>
-			<!-- present state true : google static maps -->
-			</div>
-		<!-- left pannel -->
-         <div class="col col-7" id="right_pannel">
+		   	<img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{centerXarea}},{{centerYarea}}&zoom=13&size=370x540&maptype=roadmap&markers={{markers}}&path={{buspath_blue1}}&path={{buspath_blue2}}&path={{buspath}}&markers={{yookbus}}&markers={{hwanbus}}&sensor=false&key=AIzaSyAM_1iWs2FUHPkOvCYKq88Uvyw4ox0CfZE" id="abc" vspace="50">
 
-			<div id="weather_table">
-			  <table class="table table-simple">
-				<thead>
-			      <tr>
-					<th colspan="2">현재날씨</th>
-					<th>기온</th>
-					<th>습도</th>
-					<th>풍속</th>
-				  </tr>
-				</thead>
-				<tbody>
-				  <tr>
-				    <td>
-				      <img src="http://www.kma.go.kr/images/icon/NW/NB01.png" ng-if="weather.wfKor=='맑음'">
-					  <img src="http://www.kma.go.kr/images/icon/NW/NB02.png" ng-if="weather.wfKor=='구름 조금'">
-					  <img src="http://www.kma.go.kr/images/icon/NW/NB03.png" ng-if="weather.wfKor=='구름 많음'">
-					  <img src="http://www.kma.go.kr/images/icon/NW/NB04.png" ng-if="weather.wfKor=='흐림'">
-					  <img src="http://www.kma.go.kr/images/icon/NW/NB08.png" ng-if="weather.wfKor=='비'">
-					  <img src="http://www.kma.go.kr/images/icon/NW/NB13.png" ng-if="weather.wfKor=='눈/비'">
-					  <img src="http://www.kma.go.kr/images/icon/NW/NB11.png" ng-if="weather.wfKor=='눈'">
-				    </td>
-				    <td>{{weather.wfKor}}</td>
-					<td>{{weather.temperature}}℃</td>
-					<td>{{weather.humidity}}%</td>
-					<td>{{weather.windspeed| number:1}}m/s</td>
-				  </tr>
-				</tbody>
-				  </table></div> 
-			<!-- present state true : weather_table -->
-			<div id="rightpad"></div>
-			<div id="bus_table">
-				<table class="table table-simple">
-				<thead>
-					<tr>
-						<th>아이콘</th>
-						<th>운행구간</th>
-						<th>현재정류장</th>
-						<th>버스상태</th>
-						<th>버스번호</th>
-						<th>탑승자</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-show="dataflag">
-						<td colspan = "6">현재 운행중인 버스가 없습니다</td>
-					</tr>
-					<tr ng-show="busdata.length>0">
-						<td>
-							<img  ng-if ="busdata[0].Endname=='육거리'||busdata[0].Startname=='육거리'" src="../public/images/bus_icon1.png">
-							<img ng-if ="busdata[0].Endname!='육거리'&&busdata[0].Startname!='육거리'" src="../public/images/bus_icon2.png">
-						</td>
-						<td>{{busdata[0].Startname.toString()}}->{{busdata[0].Endname.toString()}}</td>
-						<td>{{busdata[0].Sname.toString()}}</td>
-						<td ng-if="busdata[0].Over=='0'">정차</td>
-						<td ng-if="busdata[0].Over=='1'">출발</td>
-						<td>{{busdata[0].CarNo.toString()}}</td>
-						<td>{{busdata[0].Passenger.toString()}}</td>
-					</tr>
-					<tr ng-show="busdata.length>1">
-						<td>
-							<img  ng-if ="busdata[1].Endname=='육거리'||busdata[1].Startname=='육거리'" src="../public/images/bus_icon1.png">
-							<img ng-if ="busdata[1].Endname!='육거리'&&busdata[1].Startname!='육거리'" src="../public/images/bus_icon2.png">
-						</td>
-						<td>{{busdata[1].Startname.toString()}}->{{busdata[1].Endname.toString()}}</td>
-						<td>{{busdata[1].Sname.toString()}}</td>
-						<td ng-if="busdata[1].Over=='0'">정차</td>
-						<td ng-if="busdata[1].Over=='1'">출발</td>
-						<td>{{busdata[1].CarNo.toString()}}</td>
-						<td>{{busdata[1].Passenger.toString()}}</td>
-					</tr>
-					<tr ng-show="busdata.length>2">
-						<td>
-							<img  ng-if ="busdata[2].Endname=='육거리'||busdata[2].Startname=='육거리'" src="../public/images/bus_icon1.png">
-							<img ng-if ="busdata[2].Endname!='육거리'&&busdata[2].Startname!='육거리'" src="../public/images/bus_icon2.png">
-						</td>
-						<td>{{busdata[2].Startname.toString()}}->{{busdata[2].Endname.toString()}}</td>
-						<td>{{busdata[2].Sname.toString()}}</td>
-						<td ng-if="busdata[2].Over==0">정차</td>
-						<td ng-if="busdata[2].Over==1">출발</td>
-						<td>{{busdata[2].CarNo.toString()}}</td>
-						<td>{{busdata[2].Passenger.toString()}}</td>
-					</tr>
-					<tr ng-show="busdata.length>3">
-						<td>
-							<img  ng-if ="busdata[3].Endname=='육거리'||busdata[3].Startname=='육거리'" src="../public/images/bus_icon1.png">
-							<img ng-if ="busdata[3].Endname!='육거리'&&busdata[3].Startname!='육거리'" src="../public/images/bus_icon2.png">
-						</td>
-						<td>{{busdata[3].Startname.toString()}}->{{busdata[3].Endname.toString()}}</td>
-						<td>{{busdata[3].Sname.toString()}}</td>
-						<td ng-if="busdata[3].Over==0">정차</td>
-						<td ng-if="busdata[3].Over==1">출발</td>
-						<td>{{busdata[3].CarNo.toString()}}</td>
-						<td>{{busdata[3].Passenger.toString()}}</td>
-					</tr>
-				</tbody>
-				</table></div> 
-			<!-- present state true : bus table -->
-			<div id="rightpad"></div>
-			<div id="time_table" ng-show="present_view">
-				<table class="table table-simple">
-				  <thead>
-					<th>학교</th>
-					<th>환호동</th>
-					<th>육거리</th>
-					<th>환호동</th>
-					<th>학교</th>
-				  </thead>
-				  <tbody>
-				  	<tr ng-show="timeflag">
-						<td colspan="5">현재 운행중인 버스가 없습니다</td>
-				  	</tr>
-					<tr ng-repeat="timestamp in timetable">
-					  <td ng-show="timestamp.colSpan==0"			>{{timestamp.timedata[0]}}</td>
-					  <td ng-show="timestamp.colSpan==2" colspan="2">{{timestamp.timedata[0]}}</td>
-					  <td ng-show="timestamp.colSpan==3" colspan="3">{{timestamp.timedata[0]}}</td>
-					  <td ng-show="timestamp.colSpan<5&&timestamp.timedata.length>1">{{timestamp.timedata[1]}}</td>
-					  <td ng-show="timestamp.colSpan<4&&timestamp.timedata.length>2">{{timestamp.timedata[2]}}</td>
-					  <td ng-show="timestamp.colSpan<3&&timestamp.timedata.length>3">{{timestamp.timedata[3]}}</td>
-					  <td ng-show="timestamp.colSpan<2&&timestamp.timedata.length>4">{{timestamp.timedata[4]}}</td>
-					</tr>
-
-				  </tbody>
-				</table>
-			  </div>
-				<!-- real bus time table -->
-			</div>	
-			<!-- bus time table service : present --> 
-	    <!-- right_pannel -->
-	     </div>
-	  </div>
-	  <!-- center : main format -->
-	  <div class="row col col-12" id="footer" align="center">
-		  <input type="button" ng-click="past()" value="past">
-		  <input type="button" ng-click="present()" value="present">
-		  <input type="button" ng-click="predict()" value="predict"></div>  
-	  <!-- footer -->
+	
+		</div>
 	</div>
-	<script src = "http://code.angularjs.org/1.2.9/angular.min.js"></script>
-	<script src = "../public/javascripts/presentCtrl.js"></script>
-  </body>
-</html>
+		<!-- present state true : google static maps -->
+		<!-- left pannel -->
+
+       	<div class="grid_6">
+ 		<div id="weather_table">
+		<table class="table table-simple" border="1">
+		<thead>
+		<tr>
+			<th colspan="2">현재날씨</th>
+			<th>기온</th>
+			<th>습도</th>
+			<th>풍속</th>
+		</tr>
+		</thead>
+		
+		<tbody>
+			<tr>
+			<td>
+			      <img src="http://www.kma.go.kr/images/icon/NW/NB01.png" ng-if="weather.wfKor=='맑음'">
+		     	      <img src="http://www.kma.go.kr/images/icon/NW/NB02.png" ng-if="weather.wfKor=='구름 조금'">
+			      <img src="http://www.kma.go.kr/images/icon/NW/NB03.png" ng-if="weather.wfKor=='구름 많음'">
+			      <img src="http://www.kma.go.kr/images/icon/NW/NB04.png" ng-if="weather.wfKor=='흐림'">
+			      <img src="http://www.kma.go.kr/images/icon/NW/NB08.png" ng-if="weather.wfKor=='비'">
+			      <img src="http://www.kma.go.kr/images/icon/NW/NB13.png" ng-if="weather.wfKor=='눈/비'">
+			      <img src="http://www.kma.go.kr/images/icon/NW/NB11.png" ng-if="weather.wfKor=='눈'">
+		    	</td>
+			
+			<td>{{weather.wfKor}}</td>
+			<td>{{weather.temperature}}℃</td>
+			<td>{{weather.humidity}}%</td>
+			<td>{{weather.windspeed|number:1}}m/s</td>
+			</tr>
+		</tbody>
+		</table> 
+        		</div>
+        	</div>
+        	<!-- present state true : weather_table -->
+
+	<div class="grid_6">
+		<div id="bus_table">
+			<table class="table table-simple" border="1">
+			<thead>
+				<tr>
+					<th>아이콘</th>
+					<th>운행구간</th>
+					<th>현재정류장</th>
+					<th>버스상태</th>
+					<th>버스번호</th>
+					<th>탑승자</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-show="dataflag">
+					<td colspan = "6">현재 운행중인 버스가 없습니다</td>
+				</tr>
+				<tr ng-repeat="businfo in busdata">
+					<td>
+						<img  ng-if ="businfo.Endname=='육거리'||businfo.Startname=='육거리'" src="../public/images/bus_icon1.png">
+						<img ng-if ="businfo.Endname!='육거리'&&businfo.Startname!='육거리'" src="../public/images/bus_icon2.png">
+					</td>
+					<td>{{businfo.Startname.toString()}}->{{businfo.Endname.toString()}}</td>
+					<td>{{businfo.Sname.toString()}}</td>
+					<td ng-if="businfo.Over=='0'">정차</td>
+					<td ng-if="businfo.Over=='1'">출발</td>
+					<td>{{businfo.CarNo.toString()}}</td>
+					<td>{{businfo.Passenger.toString()}}</td>
+				</tr>
+			</tbody>
+			</table></div> 
+		<!-- present state true : bus table -->
+	</div>
+
+        	<div class="grid_6">
+        		<div id="time_table">
+			<table class="table table-simple" border="1">
+			  <thead>
+				<th>학교</th>
+				<th>환호동</th>
+				<th>육거리</th>
+				<th>환호동</th>
+				<th>학교</th>
+			  </thead>
+			  <tbody>
+			  	<tr ng-show="timeflag">
+					<td colspan="5">현재 운행중인 버스가 없습니다</td>
+			  	</tr>
+				<tr ng-repeat="timestamp in timetable">
+				  <td ng-show="timestamp.colSpan==0"			>{{timestamp.timedata[0]}}</td>
+				  <td ng-show="timestamp.colSpan==2" colspan="2">{{timestamp.timedata[0]}}</td>
+				  <td ng-show="timestamp.colSpan==3" colspan="3">{{timestamp.timedata[0]}}</td>
+				  <td ng-show="timestamp.colSpan<5&&timestamp.timedata.length>1">{{timestamp.timedata[1]}}</td>
+				  <td ng-show="timestamp.colSpan<4&&timestamp.timedata.length>2">{{timestamp.timedata[2]}}</td>
+				  <td ng-show="timestamp.colSpan<3&&timestamp.timedata.length>3">{{timestamp.timedata[3]}}</td>
+				  <td ng-show="timestamp.colSpan<2&&timestamp.timedata.length>4">{{timestamp.timedata[4]}}</td>
+				</tr>
+			  </tbody>
+			</table>
+			
+			<!-- real bus time table -->
+			<!-- bus time table service : present --> 
+    			<!-- right_pannel -->
+		</div>	
+	</div>	
+</div>

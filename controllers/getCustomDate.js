@@ -1,5 +1,5 @@
 var getCustomDate = function(date){
-	if(date.getHours() <= 4){
+	if(date.getHours() <= 5){
 		switch(date.getMonth()+1){
 			case 1:
 				if(date.getDate() == 1){

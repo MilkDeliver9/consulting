@@ -63,6 +63,14 @@ io.on('connection', function (socket) {
         });
     }, 300000);
 
+    socket.on('request', function(){
+        bisCol.findOne(function(err, item){
+            socket.emit('bisData', item);
+        });
+        weatherCol.findOne(function(err, item){
+            socket.emit('weatherData', item.weather[item.weather.length-1]);
+        });
+    });
 
     socket.on('disconnect', function(){
         clearInterval(bisEmitter); clearInterval(weatherEmitter);});

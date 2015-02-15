@@ -10,7 +10,19 @@ var getCustomDate = require('../controllers/getCustomDate');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+	res.render('main');
+});
+
+router.get('/present', function(req, res, next) {
 	res.render('present');
+});
+
+router.get('/past', function(req, res, next) {
+	res.render('past');
+});
+
+router.get('/predict', function(req, res, next) {
+	res.render('predict');
 });
 
 router.get('/data/bustable', function(req, res, next){
@@ -38,8 +50,14 @@ router.get('/check', function(req, res, next) {
 
 // error Page
 router.get('*', function(req, res, next){
-	res.render('notfound');
+	res.send('Not found');
 });
 
 
 module.exports = router;
+
+//36.107416, 129.342134
+//36.034432, 129.423845
+//72984
+//81711
+

@@ -76,13 +76,25 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 				var busTimeValue;
 				var shelterTimeValue;
 				var curTimeValue;
+				var shelterCount;
 
 				//delete error bus data
 				for(var busIdx in item.bus){
 					busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
 					curTimeValue = Number(time.split(':',2)[0])*60 + Number(time.split(':',2)[1]);
+					shelterCount = 0;
 
 					if(((busTimeValue + 90) < curTimeValue && item.bus[busIdx].shelterArray.length < 3) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
+						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
+					}
+
+					for(var shelIdx in item.bus[busIdx].shelterArray){
+						if(item.bus[busIdx].shelterArray[shelIdx]){
+							shelterCount++;
+						}
+					}
+
+					if((busTimeValue + 20) < curTimeValue && shelterCount <=2){
 						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
 					}
 				}
@@ -112,12 +124,14 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 						if(newShelterArr[shelterIdx].carNo == item.bus[busIdx].carNo){
 							index = item.bus.indexOf(item.bus[busIdx]);
 						}
-
 					}
 
 					if(index >= 0){
 						if(shelNum >= (item.bus[index].shelterArray.length-1)){
-							item.bus[index].shelterArray[shelNum] = newShelterArr[shelterIdx];
+							// don't reset 0 when bus arrived at shelNo 13 or 27
+							if(!((newShelterArr[shelterIdx].shelterNo =="13" || newShelterArr[shelterIdx].shelterNo =="27") && newShelterArr[shelterIdx].passenger == 0)){
+								item.bus[index].shelterArray[shelNum] = newShelterArr[shelterIdx];
+							}
 						} else {
 							item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
 						}
