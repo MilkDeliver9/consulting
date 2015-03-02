@@ -97,6 +97,7 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					if((busTimeValue + 20) < curTimeValue && shelterCount <=2){
 						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
 					}
+					
 				}
 
 				// update bus
