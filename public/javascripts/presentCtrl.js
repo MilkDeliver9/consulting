@@ -46,7 +46,7 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 	$scope.paramfrom='';
 	$scope.paramto='';
 
-	$scope.dbstartday=new Date(2015,01,02);
+	$scope.dbstartday=new Date(2015,02,02);
 
 
 	$scope.fromdate=$scope.dbstartday;
@@ -61,11 +61,10 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 		$scope.functionflag=true;
 		var pass=0;
 		param={'from':$scope.paramfrom,'to':$scope.paramto};
-			$http.post('data/staticByShel',param).
-			  success(function(data,status,headers,config){
-			  	 
+			$http.post('data/staticByShel',param)
+			.success(function(data,status,headers,config){
+				console.log(data);
 			  	$scope.chartd_shelter=data;
-			  	//console.log(data);
 			  	for(var idx in $scope.chartd_shelter){
 			  		pass=$scope.todate.getDate()-$scope.fromdate.getDate();
 			  		
@@ -94,6 +93,7 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 		}
 
 		param={'from':$scope.paramfrom,'to':$scope.paramto};
+
 		$http.post('data/staticByTime',param).
 			  success(function(data,status,headers,config){
 				$scope.chart_time=new Array();
@@ -121,6 +121,7 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 				  	}
 
 				  	$scope.timedflag=false;
+
 			  		//if(!$scope.chartflag)
 			  	$scope.drawchart();
 			  		//console.log($scope.chart_time);
@@ -133,7 +134,7 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 	//***************************** TIME DATA GET END***************************//	
 	//******************************* DRAW CHART *******************************//
 	$scope.drawchart = function(){
-			var chart=jui.include("chart.builder");
+		var chart=jui.include("chart.builder");
 		//console.log($scope.chartd_shelter);
 		if($scope.chartflag==false){
 				$scope.c = chart("#GraphByTime",{
@@ -144,7 +145,7 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 		                    line : true, full:true
 		                },
 		                y :
-		                { type :'range',domain : [0, 200],step : 10},
+		                { type :'range',domain : [0, 500],step : 10},
 
 		            },
 		            brush : 
@@ -212,16 +213,16 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 			
 		}
 		else{
-		$scope.d.axis(0).update($scope.chartd_shelter);
-		$scope.d.axis(1).update($scope.chartd_shelter);
-		$scope.c.axis(0).update($scope.chart_time);
-		$scope.chart_time=new Array();
-		$scope.chartd_time=new Array();
+			$scope.d.axis(0).update($scope.chartd_shelter);
+			$scope.d.axis(1).update($scope.chartd_shelter);
+			$scope.c.axis(0).update($scope.chart_time);
+			$scope.chart_time=new Array();
+			$scope.chartd_time=new Array();
 		}
 		$scope.chartflag=true;
 		$scope.timedflag=true;
-	if(!$scope.dayflag)
-		$scope.drawdaypicer();
+		if(!$scope.dayflag)
+			$scope.drawdaypicer();
 	};
 	//******************************* DRAW CHART END****************************//
 	//******************************* DRAW DAY PICKER **************************//
@@ -230,10 +231,9 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 			datepicker1 = datepicker("#datepicker1", {
 			    titleFormat: "yyyy년 MM월",
 			    format: "yyyy/MM/dd",
-			    date:$scope.fromdate,
+			    date:$scope.paramfrom,
 			    event: {
 			       select: function(date,e){
-			       		console.log(e);
 			       		$scope.fromdate=new Date(date);
 			       		if($scope.fromdate<$scope.todate){
 			       			$scope.paramfrom=$scope.fromdate.getFullYear()+'/'+($scope.fromdate.getMonth()+1)+'/'+$scope.fromdate.getDate();

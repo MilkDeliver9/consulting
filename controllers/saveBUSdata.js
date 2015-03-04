@@ -77,27 +77,31 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 				var shelterTimeValue;
 				var curTimeValue;
 				var shelterCount;
+				
+				try {
+					//delete error bus data
+					for(var busIdx in item.bus){
+						busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
+						curTimeValue = Number(time.split(':',2)[0])*60 + Number(time.split(':',2)[1]);
+						shelterCount = 0;
 
-				//delete error bus data
-				for(var busIdx in item.bus){
-					busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
-					curTimeValue = Number(time.split(':',2)[0])*60 + Number(time.split(':',2)[1]);
-					shelterCount = 0;
-
-					if(((busTimeValue + 90) < curTimeValue && item.bus[busIdx].shelterArray.length < 3) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
-						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
-					}
-
-					for(var shelIdx in item.bus[busIdx].shelterArray){
-						if(item.bus[busIdx].shelterArray[shelIdx]){
-							shelterCount++;
+						if(((busTimeValue + 90) < curTimeValue && item.bus[busIdx].shelterArray.length < 3) || item.bus[busIdx].carNo.match(/00[0-9][0-9]/)){
+							item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
 						}
-					}
 
-					if((busTimeValue + 20) < curTimeValue && shelterCount <=2){
-						item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
+						for(var shelIdx in item.bus[busIdx].shelterArray){
+							if(item.bus[busIdx].shelterArray[shelIdx]){
+								shelterCount++;
+							}
+						}
+
+						if((busTimeValue + 20) < curTimeValue && shelterCount <=2){
+							item.bus.splice(item.bus.indexOf(item.bus[busIdx]),1);
+						}
+						
 					}
-					
+				} catch(e){
+					console.log(e);
 				}
 
 				// update bus

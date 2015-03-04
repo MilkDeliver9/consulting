@@ -30,10 +30,14 @@ router.get('/data/bustable', function(req, res, next){
 });
 
 router.post('/data/staticByShel', function(req, res, next){
+	console.log("Shel");
+	console.log(req.body.from + "  :::::  " + req.body.to);
 	getStaticByShel.get(req.body.from, req.body.to, res);
 });
 
 router.post('/data/staticByTime', function(req, res, next){
+	console.log("Time");
+	console.log(req.body.from + "  :::::  " + req.body.to);
 	getStaticByTime.get(req.body.from, req.body.to, res);
 });
 
