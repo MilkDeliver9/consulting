@@ -102,6 +102,12 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					}
 				} catch(e){
 					console.log(e);
+					console.log(item.bus);
+					console.log('//////');
+					for(var busIdx in item.bus){
+						console.log(item.bus[busIdx]);
+						console.log('//////');
+					}
 				}
 
 				// update bus
@@ -111,21 +117,6 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					var index = -1;
 
 					for(var busIdx in item.bus){
-						/*
-						busTimeValue = Number(item.bus[busIdx].startTime.split(':',2)[0])*60 + Number(item.bus[busIdx].startTime.split(':',2)[1]);
-						shelterTimeValue = Number(newShelterArr[shelterIdx].timeStamp.split(':',2)[0])*60 + Number(newShelterArr[shelterIdx].timeStamp.split(':',2)[1]);
-						
-						if ((newShelterArr[shelterIdx].carNo == item.bus[busIdx].carNo) && (busTimeValue + 90) > shelterTimeValue) {
-							isNewBus = false;
-							// if this bus is already exist
-							// don't reset 0 when bus arrived at shelNo 13
-							if((shelNum >= (item.bus[busIdx].shelterArray.length-1)) && !(newShelterArr[shelterIdx].shelterNo =="13" && newShelterArr[shelterIdx].passenger == 0)){
-								item.bus[busIdx].shelterArray[shelNum] = newShelterArr[shelterIdx];
-								break;
-							}
-						}
-						*/
-
 						if(newShelterArr[shelterIdx].carNo == item.bus[busIdx].carNo){
 							index = item.bus.indexOf(item.bus[busIdx]);
 						}
@@ -143,11 +134,7 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					} else {
 						item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
 					}
-					/*
-					if(isNewBus){
-						item.bus.push(new datas.busData(newShelterArr[shelterIdx].timeStamp, newShelterArr[shelterIdx].carNo));
-					} 
-					*/
+
 				}
 
 				accumCol.save(item, {w:1}, function(err, savedItem){});

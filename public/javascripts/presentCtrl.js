@@ -46,31 +46,33 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 	$scope.paramfrom='';
 	$scope.paramto='';
 
-	$scope.dbstartday=new Date(2015,02,02);
+	$scope.dbstartday=new Date(2015,01,02);
 
 
 	$scope.fromdate=$scope.dbstartday;
 	$scope.todate=new Date();
 
 	//*****************GOTO CHARTPAGE BUTTON + SHELTER DATA GET*******************//
-	$scope.paramfrom=$scope.fromdate.getFullYear()+'/'+$scope.fromdate.getMonth()+'/'+$scope.fromdate.getDate();
+	$scope.paramfrom=$scope.fromdate.getFullYear()+'/'+($scope.fromdate.getMonth()+1)+'/'+$scope.fromdate.getDate();
 	$scope.paramto=$scope.todate.getFullYear()+'/'+($scope.todate.getMonth()+1)+'/'+$scope.todate.getDate();
 		
 
 	$scope.post_shelter=function(){
 		$scope.functionflag=true;
-		var pass=0;
+		var sday=0;
+		var fday=0;
 		param={'from':$scope.paramfrom,'to':$scope.paramto};
 			$http.post('data/staticByShel',param)
 			.success(function(data,status,headers,config){
 				console.log(data);
 			  	$scope.chartd_shelter=data;
+
+			  	sday =  ($scope.todate.getTime()-$scope.fromdate.getTime())/1000/60/60/24;
+			  	//console.log(sday);
+
 			  	for(var idx in $scope.chartd_shelter){
-			  		pass=$scope.todate.getDate()-$scope.fromdate.getDate();
-			  		
-			  		$scope.chartd_shelter[idx].totalPass=Math.floor($scope.chartd_shelter[idx].totalPass/pass);
-					
-			  	}
+					$scope.chartd_shelter[idx].totalPass=Math.floor($scope.chartd_shelter[idx].totalPass/(Math.floor(sday)));
+				}
 			  	$scope.post_time();
 			  })
 			  .error(function(data,status,headers,config){
@@ -183,12 +185,20 @@ app.controller('pastController',['$scope','$http','$window',function($scope,$htt
 						full: true
 	                },
 	                y :
-	                { type : 'range',domain : [0, 1000],step : 5, color:'#e9f819'},
+	                { type : 'range',
+	                  domain : function(d){
+	                			if(d.totalPass>2000) return 2500;
+	                			else if(d.totalPass>1500) return 2000;
+	                			else if(d.totalPass>1000) return 1500;
+	                			else if(d.totalPass>500) return 1000;
+	                			else return 500;
+				                },
+	                step : 5, color:'#e9f819'},
 	                 //data : $scope.chartd_shelter
 	             },
 	             	{
 	                 x : {extend:0,hide:true},
-	                 y :{type : 'range',domain : [0, 100],step : 5,orient:'right' },
+	                 y :{type : 'range',domain : [0, 60],step : 5,orient:'right' },
 	                 // data : $scope.chartd_shelter
 	             }
 	            ],
