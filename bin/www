@@ -34,6 +34,8 @@ io.on('connection', function (socket) {
     var bisEmitter;
     var weatherEmitter;
 
+    var date = new Date();
+
     getDBConnection(function(err, db){
         // get BIS Data
         var consultingDB = db.db("consulting");
@@ -45,10 +47,9 @@ io.on('connection', function (socket) {
 
         weatherCol = consultingDB.collection("weatherData");
 
-        weatherCol.findOne(function(err, item){
+        weatherCol.findOne({date:date.getFullYear() + '/' + (date.getMonth()+1) + '/' + date.getDate()}, function(err, item){
             socket.emit('weatherData', item.weather[item.weather.length-1]);
         });
-
     });
 
     bisEmitter = setInterval(function(){
@@ -67,7 +68,7 @@ io.on('connection', function (socket) {
         bisCol.findOne(function(err, item){
             socket.emit('bisData', item);
         });
-        weatherCol.findOne(function(err, item){
+        weatherCol.findOne({date:date.getFullYear() + '/' + (date.getMonth()+1) + '/' + date.getDate()}, function(err, item){
             socket.emit('weatherData', item.weather[item.weather.length-1]);
         });
     });

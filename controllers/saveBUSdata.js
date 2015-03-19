@@ -123,7 +123,7 @@ var accumDBUpdate = function(date, time, consultingDB, newShelterArr){
 					}
 
 					if(index >= 0){
-						if(shelNum >= (item.bus[index].shelterArray.length-1)){
+						if(shelNum >= (item.bus[index].shelterArray.length-2)){
 							// don't reset 0 when bus arrived at shelNo 13 or 27
 							if(!((newShelterArr[shelterIdx].shelterNo =="13" || newShelterArr[shelterIdx].shelterNo =="27") && newShelterArr[shelterIdx].passenger == 0)){
 								item.bus[index].shelterArray[shelNum] = newShelterArr[shelterIdx];
